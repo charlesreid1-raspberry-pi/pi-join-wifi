@@ -1,0 +1,4 @@
+# yikes, make sure there are no passphrases laying around.
+wpa_supplicant.conf
+# make REALLY sure there are no passphrases.
+*.cfg
