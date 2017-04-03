@@ -2,7 +2,7 @@
 
 Scripts to help Raspberry Pis join wifi networks.
 
-## Simplest Possible Method
+## Simplest Possible Method (Encrypted Only???)
 
 Should just be able to add the following lines to `/etc/network/interfaces`:
 
@@ -34,13 +34,15 @@ details.)
 
 So we can include or remove various wifi configurations
 by including or removing a configuration file.
+
 For example, for an open network like South Seattle,
+we add the following line to `/etc/network/interfaces`:
 
 ```
-source /etc/network/interfaces.d/southseattle.cf
+source /etc/network/interfaces.d/southseattle.cfg
 ```
 
-where `southseattle.cf` contains the WPA ssid 
+where `southseattle.cfg` contains the WPA ssid 
 for the South Seattle wifi netowrk, 
 
 ```
@@ -54,10 +56,10 @@ wpa-ssid NetName
 Alternatively, for an encrypted network,
 
 ```
-source /etc/network/interfaces.d/dropbear.cf
+source /etc/network/interfaces.d/dropbear.cfg
 ```
 
-where `dropbear.cf` contains the WPA ssid and key 
+where `dropbear.cfg` contains the WPA ssid and key 
 for the dropbear wireless router:
 
 ```
