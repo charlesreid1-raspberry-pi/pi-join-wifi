@@ -2,132 +2,70 @@
 
 Scripts to help Raspberry Pis join wifi networks.
 
-## JoinWifi
+## Simplest Possible Method
 
-This joins a wifi network for the first time, and runs wpa-supplicant to put the passphrase hash into a file for later use.
-
-## WPA Supplicant
-
-To connect to a WPA wireless network from Linux, according to [raspberrypi.org](https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md):
-
-### Get Network Details
-
-Use `wpa_passphrase` command to turn pass phrase into key to put into a file:
+Should just be able to add the following lines to `/etc/network/interfaces`:
 
 ```
-$ wpa_passphrase "test network name" "testingPassword
+...
 
-network={
-  ssid="test network name"
-  #psk="testingPassword"
-  psk=131e1e221f6e06e3911a2d11ff2fac9182665c004de85300f9cac208a6a80531
-}
+auto wlan0
+allow-hotplug wlan0
+iface wlan0 inet dhcp
+wpa-ssid NetName
+wpa-psk NetPassword
 ```
 
-Remove commented line with plain text password.
+This will allow the Pi to connect to the wifi network automatically (on boot).
+This can be manually added to the Pi for whichever network it is going to join.
+Or...
 
-Alternatively, if your password is in a file,
+## Scripted Method
 
-```plain
-wpa_passphrase "test network name" << file_where_password_is_stored
+The `/etc/network/interfaces` file can include the contents of other files.
+From the contents of the interfaces manpage:
+
+```
+Lines beginning with "source" are used to include stanzas from other  files,  so
+configuration can be split into many files. The word "source" is followed by the
+path of file to be sourced. Shell wildcards can be used.   (See  wordexp(3)  for
+details.)
 ```
 
-### Adding Network Details to Pi
+So we can include or remove various wifi configurations
+by including or removing a configuration file.
+For example, for an open network like South Seattle,
 
-You can dump the output of the `wpa_passphrase` above to the `wpa_supplicant.conf` file:
-
-```plain
-wpa_passphrase "testing" "testingPassword" >> /etc/wpa_supplicant/wpa_supplicant.conf
+```
+source /etc/network/interfaces.d/southseattle.cf
 ```
 
-Restart WPA with 
+where `southseattle.cf` contains the WPA ssid 
+for the South Seattle wifi netowrk, 
 
-```plain
-sudo wpa_cli reconfigure
+```
+auto wlan0
+allow-hotplug wlan0
+iface wlan0 inet dhcp
+wpa-ssid NetName
+#wpa-psk 
 ```
 
-### Unsecured Networks
+Alternatively, for an encrypted network,
 
-If the network you are connecting to does not use a password, 
-include the correct `key_mgmt` entry:
+```
+source /etc/network/interfaces.d/dropbear.cf
+```
 
-```plain
-network={
-    ssid="testing"
-    key_mgmt=NONE
-}
+where `dropbear.cf` contains the WPA ssid and key 
+for the dropbear wireless router:
+
+```
+auto wlan0
+allow-hotplug wlan0
+iface wlan0 inet dhcp
+wpa-ssid dropbear
+wpa-psk abcdefg123
 ```
 
 
-
-## Charlesreid1 method 
-
-To connect to a wireless network according to [the charlesreid1.com wiki](https://charlesreid1.com/wiki/Linux/Wireless):
-
-First add network configuration to `/etc/wpa_supplicant/wpa_supplicant.conf`:
-
-```plain
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-update_config=1
-
-network={
-    ssid="Your SSID Here"
-    proto=RSN
-    key_mgmt=WPA-PSK
-    pairwise=CCMP TKIP
-    group=CCMP TKIP
-    psk="YourPresharedKeyHere"
-}
-```
-
-Next edit /etc/network/interfaces and modify the wlan0 entry.
-
-If you have a static IP: 
-
-```plain
-# ------ Static IP --------
-###allow-hotplug wlan0
-iface wlan0 inet manual
-wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
-iface default inet static
-    address 10.1.2.20
-    netmask 255.255.255.0
-    network 10.1.2.0
-    gateway 10.1.2.1
-```
-
-If you have an automatically-assigned IP from the DHCP controller:
-
-```plain
-# ------- DHCP ------------
-###allow-hotplug wlan0
-iface wlan0 inet manual
-wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
-iface default inet dhcp
-```
-
-Now bring the wireless card down and back up:
-
-```plain
-ifdown wlan0
-ifup wlan0
-```
-
-You should see the wireless network you specified in your wpa supplicant file when you run iwconfig:
-
-```plain
-iwconfig
-```
-
-You should also see an IP address when you run ifconfig:
-
-```plain
-ifconfig
-```
-
-To start wpa_supplicant manually:
-
-```plain
-# sudo /sbin/wpa_supplicant -P /var/run/wpa_supplicant.wlan0.pid -i wlan0 \
-			-D nl80211,wext -c /etc/wpa_supplicant/wpa_supplicant.conf
-```
