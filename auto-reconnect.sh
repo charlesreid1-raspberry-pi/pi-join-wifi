@@ -2,6 +2,15 @@
 #
 # via http://raspberrypi.stackexchange.com/questions/4120/how-to-automatically-reconnect-wifi
 #
+# contents of /etc/wifi.conf:
+#
+# router_ip=192.168.0.1
+# log=/var/log/wifi.log
+# wlan=wlan0
+# eth=eth0
+# essid=someNetwork
+# check_interval=5
+#
 
 # make sure we aren't running already
 what=`basename $0`
