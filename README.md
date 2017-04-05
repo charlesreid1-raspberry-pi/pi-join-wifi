@@ -2,7 +2,9 @@
 
 Scripts to help Raspberry Pis join wifi networks.
 
-## Simplest Possible Method (Encrypted Only???)
+## Joining Encrypted Wifi Networks
+
+## Simplest Possible Method
 
 Should just be able to add the following lines to `/etc/network/interfaces`:
 
@@ -20,7 +22,7 @@ This will allow the Pi to connect to the wifi network automatically (on boot).
 This can be manually added to the Pi for whichever network it is going to join.
 Or...
 
-## Scripted Method
+### Scripted Method
 
 The `/etc/network/interfaces` file can include the contents of other files.
 From the contents of the interfaces manpage:
